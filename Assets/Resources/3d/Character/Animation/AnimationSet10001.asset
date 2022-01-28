@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d931936551a70843850eaadfc0ea97e, type: 3}
+  m_Name: AnimationSet10001
+  m_EditorClassIdentifier: 
+  AnimationSetList:
+  - ConnectionType: 0
+    Label: 1
+    AnimationClipArray:
+    - {fileID: 7400002, guid: a3422ad278cd9a94aa3da8e6bff9deea, type: 3}
+    IsApplyRootMotion: 0
+    IsMoveManual: 0
+    MoveManualSpeed: 0
+    IsLeftIK: 0
+    LeftIKIndex: 0
+    IsRightIK: 0
+    RightIKIndex: 0
+    IsSameAnime: 0
+    LerpTime: 0.1
+  - ConnectionType: 0
+    Label: 3
+    AnimationClipArray:
+    - {fileID: 7400048, guid: 98d8219075968bd43b75fdba6b4463d3, type: 3}
+    IsApplyRootMotion: 0
+    IsMoveManual: 0
+    MoveManualSpeed: 0
+    IsLeftIK: 0
+    LeftIKIndex: 0
+    IsRightIK: 0
+    RightIKIndex: 0
+    IsSameAnime: 0
+    LerpTime: 0.1
+  - ConnectionType: 1
+    Label: 7
+    AnimationClipArray:
+    - {fileID: 7400004, guid: bed9e90d73aca1841ac8b880ad2dc7b4, type: 3}
+    - {fileID: 7400000, guid: bed9e90d73aca1841ac8b880ad2dc7b4, type: 3}
+    - {fileID: 7400002, guid: bed9e90d73aca1841ac8b880ad2dc7b4, type: 3}
+    IsApplyRootMotion: 0
+    IsMoveManual: 0
+    MoveManualSpeed: 0
+    IsLeftIK: 0
+    LeftIKIndex: 0
+    IsRightIK: 0
+    RightIKIndex: 0
+    IsSameAnime: 0
+    LerpTime: 0.1
