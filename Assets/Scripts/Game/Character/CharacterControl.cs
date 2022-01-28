@@ -24,6 +24,13 @@ public partial class CharacterBase
     [SerializeField]
     protected float _moveSpeed = 0.1f;
 
+    [SerializeField]
+    protected bool _isControl = false;
+    public bool IsControl { get { return _isControl; } set { _isControl = value; } }
+
+    protected CharacterBase _leadCharacter = null;
+    public CharacterBase LeadCharacter { get { return _leadCharacter; } set { _leadCharacter = value; } }
+
     #region TargetMove
 
     protected Vector3 _targetPos = Vector3.zero;
@@ -32,8 +39,22 @@ public partial class CharacterBase
 
     #endregion TargetMove
 
+    public void SetCameraLookDown( CameraLookDown cameraLookDown )
+    {
+        _cameraLookDown = cameraLookDown;
+    }
+
     protected virtual void UpdateInput()
     {
+        if(_isControl == false)
+        {
+            _direction.x = 0;
+            _direction.y = -0.1f;
+            _direction.z = 0;
+            PlayAnimation(_animationSetScriptableObject.Get( AnimationSetScriptableObject.AnimationSetNameLabel.Idle01));
+            return;
+        }
+
         switch( _moveType )
         {
             case MoveType.LookDownFreeMove:
@@ -54,10 +75,10 @@ public partial class CharacterBase
 
         if (_currentAnimationSet.Label == AnimationSetScriptableObject.AnimationSetNameLabel.HandGun_Cover01)
         {
-            if (Input.GetKeyDown("joystick button 0"))
-            {
-                PlayEndAnimation();
-            }
+            //if (Input.GetKeyDown("joystick button 0"))
+            //{
+            //    PlayEndAnimation();
+            //}
         }
         else
         {
@@ -78,20 +99,18 @@ public partial class CharacterBase
                 currentLabel = AnimationSetScriptableObject.AnimationSetNameLabel.Run01;
             }
 
-            if( Input.GetKeyDown("joystick button 0") )
-            {
-                currentLabel = AnimationSetScriptableObject.AnimationSetNameLabel.HandGun_Cover01;
-                nextLabel = AnimationSetScriptableObject.AnimationSetNameLabel.Idle01;
-            }
+            //if( Input.GetKeyDown("joystick button 0") )
+            //{
+            //    currentLabel = AnimationSetScriptableObject.AnimationSetNameLabel.HandGun_Cover01;
+            //    nextLabel = AnimationSetScriptableObject.AnimationSetNameLabel.Idle01;
+            //}
+
 
             PlayAnimation(
                 _animationSetScriptableObject.Get(currentLabel), 
                 nextLabel != AnimationSetScriptableObject.AnimationSetNameLabel.None ? _animationSetScriptableObject.Get(nextLabel) : null );
 
         }
-
-
-        _characterController.Move(_direction);
     }
 
     protected virtual void Control_TargetMove()
@@ -116,6 +135,25 @@ public partial class CharacterBase
         }
     }
 
+    protected virtual void UpdateFollow()
+    {
+        if( _isControl == true )
+        {
+            return;
+        }
+
+        if(_leadCharacter == null)
+        {
+            return;
+        }
+
+    }
+
+    protected void UpdateMove()
+    {
+        _characterController.Move(_direction);
+    }
+
 #if UNITY_EDITOR
     public partial class CharacterBaseEditor : Editor
     {
@@ -126,6 +164,7 @@ public partial class CharacterBase
 
             if (_isFoldControl = EditorGUILayout.Foldout(_isFoldControl, "Control"))
             {
+                chara._isControl = EditorGUILayout.Toggle("_isControl", chara._isControl);
                 chara._moveSpeed = EditorGUILayout.FloatField("_moveSpeed", chara._moveSpeed);
             }
         }

@@ -10,13 +10,24 @@ public class CameraLookDown : MonoBehaviour
     private Camera _camera = null;
     public Camera Camera { get { return _camera; } set { _camera = value; } }
 
-    private CharacterBase _character = null;
+    /// <summary>
+    /// ÉJÉÅÉâÇÃå©ÇƒÇ¢ÇÈêÊ
+    /// </summary>
+    private GameObject _targetDummy = null;
+
+    private Transform _targetTransform = null;
+
+    private bool _isTargetCharacter = false;
 
     private Vector3 _currentPos = Vector3.zero;
 
     private Vector3 _targetPos = Vector3.zero;
 
     private Vector3 _cameraPos = Vector3.zero;
+
+    private Vector3 _direction = Vector3.zero;
+
+    private float _moveSpeed = 0.1f;
 
     private float _cameraYaw = 180.0f;
     public float CameraYaw { get { return _cameraYaw; } }
@@ -39,22 +50,46 @@ public class CameraLookDown : MonoBehaviour
 
     public static CameraLookDown CreateCamera()
     {
-        GameObject obj = new GameObject("CameraLookDown");
+        GameObject parentObj = new GameObject("CameraLookDown");
+        GameObject obj = new GameObject("Camera");
+        obj.transform.SetParent(parentObj.transform);
         Camera camera = obj.AddComponent<Camera>();
         CameraLookDown cameraLookDown = obj.AddComponent<CameraLookDown>();
         cameraLookDown.Camera = camera;
+        cameraLookDown.Initialize();
         return cameraLookDown;
+    }
+
+    public void Initialize()
+    {
+        _targetDummy = new GameObject("target");
+        _targetDummy.transform.SetParent(transform.parent);
     }
 
     public void SetCharacter( CharacterBase character )
     {
-        _character = character;
-        _character.CameraLookDown = this;
+        if (character != null)
+        {
+            _isTargetCharacter = true;
+            _targetTransform = character.transform;
+        }
+        else
+        {
+            _isTargetCharacter = false;
+            _targetTransform = _targetDummy.transform;
+        }
     }
 
     private void UpdateCamera()
     {
-        _targetPos = _character.transform.localPosition;
+        _targetPos = _targetTransform.transform.localPosition;
+
+        if( _isTargetCharacter )
+        {
+            _targetDummy.transform.localPosition = _targetPos;
+        }
+
+
         _currentPos = (_targetPos - _currentPos) * _cameraDelay + _currentPos;
         _cameraYaw = (_targetYaw - _cameraYaw) * _cameraDelay + _cameraYaw;
         _cameraPitch = (_targetPitch - _cameraPitch) * _cameraDelay + _cameraPitch;
@@ -75,11 +110,39 @@ public class CameraLookDown : MonoBehaviour
         float trigger = Input.GetAxis("L_R_Trigger");
         if ( trigger > 0.05f )
         {
-            _targetYaw += Utility.GetGameTime() * 64.0f;
+            _targetYaw += Utility.GetGameTime() * 96.0f;
         }
         else if( trigger < -0.05f )
         {
-            _targetYaw -= Utility.GetGameTime() * 64.0f;
+            _targetYaw -= Utility.GetGameTime() * 96.0f;
+        }
+
+        if( _isTargetCharacter == false )
+        {
+            //L Stick
+            float lsh = Input.GetAxis("L_Stick_H");
+            float lsv = Input.GetAxis("L_Stick_V");
+            if ((lsh != 0) || (lsv != 0))
+            {
+                _direction.x = lsh;
+                _direction.z = -lsv;
+                float ang = Utility.GetAngle(_direction) + _cameraYaw + 180.0f;
+                float magnitude = _direction.magnitude;
+                _direction.x = Utility.Sin(ang) * _moveSpeed;
+                _direction.z = Utility.Cos(ang) * _moveSpeed;
+
+                Vector3 pos = _targetDummy.transform.localPosition;
+                pos.x += _direction.x;
+                pos.z += _direction.z;
+
+                RaycastHit hit;
+                if( Physics.Raycast( pos + Vector3.up, Vector3.down, out hit, 2.0f, LayerMask.GetMask("3DGround") ) )
+                {
+                    pos.y = hit.point.y;
+                }
+
+                _targetDummy.transform.localPosition = pos;
+            }
         }
     }
 

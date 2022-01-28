@@ -28,6 +28,8 @@ public partial class CharacterBase : MonoBehaviour
     {
         UpdateInput();
         UpdateAnimation();
+        UpdateFollow();
+        UpdateMove();
     }
 
 #if UNITY_EDITOR

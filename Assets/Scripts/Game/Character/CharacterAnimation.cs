@@ -13,16 +13,6 @@ public partial class CharacterBase
     private const int ANIMATION_COUNT = 3;
 
     /// <summary>
-    /// アニメーション再生状況
-    /// </summary>
-    private enum AnimationState
-    {
-        Start,
-        Loop,
-        End
-    }
-
-    /// <summary>
     /// アニメータ
     /// </summary>
     private Animator _animator = null;
@@ -77,7 +67,10 @@ public partial class CharacterBase
     private AnimationSet _nextAnimationSet = null;
     private Action _onEndAnimation = null;
 
-    private AnimationState _animationState = AnimationState.Start;
+    /// <summary>
+    /// 現在のアニメーション再生段階
+    /// </summary>
+    private int _clipIndex = 0;
 
     private int _currentAnimationIndex = 0;
     private int GetCurrentAnimationIndex(int index)
@@ -232,12 +225,13 @@ public partial class CharacterBase
     {
         if (lerpTime < 0.0f)
         {
-            lerpTime = animationSet.LerpTime;
+            // 先頭から引っ張ってくる
+            lerpTime = animationSet.ClipSetArray[0].LerpTime;
         }
 
         if (_lastAnimationSet == animationSet)
         {
-            if (animationSet.IsSameAnime == false)
+            if (animationSet.ClipSetArray[_clipIndex].IsSameAnime == false)
             {
                 if (isForce)
                 {
@@ -256,7 +250,7 @@ public partial class CharacterBase
 
         _onEndAnimation = onEndAction;
 
-        _animationState = AnimationState.Start;
+        _clipIndex = 0;
 
         PlayAnimation(lerpTime);
 
@@ -268,7 +262,8 @@ public partial class CharacterBase
     /// <param name="lerpTime"></param>
     private void PlayAnimation(float lerpTime)
     {
-        AnimationClip clip = _currentAnimationSet.AnimationClipArray[(int)_animationState];
+        AnimationSet.ClipSet currentClipSet = _currentAnimationSet.ClipSetArray[(int)_clipIndex];
+        AnimationClip clip = currentClipSet.AnimationClip;
 
         bool isLerping = false;
         if (_animationLerpTime <= 0.0f)
@@ -346,7 +341,7 @@ public partial class CharacterBase
         CheckIkMotion();
 
         // ルートを移動させるかチェック
-        _animator.applyRootMotion = _currentAnimationSet.IsApplyRootMotion;
+        _animator.applyRootMotion = currentClipSet.IsApplyRootMotion;
 
         _playableGraph.Play();
 
@@ -366,13 +361,14 @@ public partial class CharacterBase
             return;
         }
 
+        AnimationSet.ClipSet currentClipSet = _currentAnimationSet.ClipSetArray[(int)_clipIndex];
         Transform ikParent = null;
 
         // IK
         {
-            IsLeftIK = _currentAnimationSet.IsLeftIK;
+            IsLeftIK = currentClipSet.IsLeftIK;
 
-            switch (_currentAnimationSet.LeftIKIndex)
+            switch (currentClipSet.LeftIKIndex)
             {
                 default:
                     ikParent = _positionList[(int)PositionObjName.WeaponR01_LHand01];
@@ -388,9 +384,9 @@ public partial class CharacterBase
         }
 
         {
-            IsRightIK = _currentAnimationSet.IsRightIK;
+            IsRightIK = currentClipSet.IsRightIK;
 
-            switch (_currentAnimationSet.RightIKIndex)
+            switch (currentClipSet.RightIKIndex)
             {
                 default:
                     ikParent = _positionList[(int)PositionObjName.WeaponL02_RHand01];
@@ -462,24 +458,26 @@ public partial class CharacterBase
 
         if (_nextAnimationSet != null)
         {
+            AnimationSet.ClipSet currentClipSet = _currentAnimationSet.ClipSetArray[(int)_clipIndex];
+
             // アニメーション再生終了していた場合
-            if (_animationClipPlayableArray[GetCurrentAnimationIndex(0)].GetTime() >= _currentAnimationSet.AnimationClipArray[(int)_animationState].length - _animationLerpTime)
+            if (_animationClipPlayableArray[GetCurrentAnimationIndex(0)].GetTime() >= currentClipSet.AnimationClip.length - _animationLerpTime)
             {
                 // Loopアニメではない場合
-                if (_animationClipPlayableArray[GetCurrentAnimationIndex(0)].GetAnimationClip().isLooping == false ||
-                    _animationState != AnimationState.Loop )
+                if (_animationClipPlayableArray[GetCurrentAnimationIndex(0)].GetAnimationClip().isLooping == false )
                 {
-                    if (_currentAnimationSet.ConnectionType == AnimationSet.AnimationConnectionType.Single ||
-                        (_currentAnimationSet.ConnectionType == AnimationSet.AnimationConnectionType.StartLoopEnd && _animationState == AnimationState.End))
+                    if (_currentAnimationSet.ClipSetArray.Length <= _clipIndex + 1 )
                     {
+                        // 最後のアニメかつ、Loopアニメじゃないときは次のSetに移動
                         _onEndAnimation?.Invoke();
                         PlayAnimation(_nextAnimationSet);
                         _nextAnimationSet = null;
                     }
                     else
                     {
-                        _animationState++;
-                        PlayAnimation(_nextAnimationSet.LerpTime);
+                        // まだ次があるので進める
+                        _clipIndex++;
+                        PlayAnimation(_currentAnimationSet.ClipSetArray[(int)_clipIndex].LerpTime);
                     }
                 }
             }
@@ -488,21 +486,18 @@ public partial class CharacterBase
 
     public void PlayEndAnimation()
     {
-        if( _currentAnimationSet.ConnectionType != AnimationSet.AnimationConnectionType.StartLoopEnd)
-        {
-            return;
-        }
+        int finalClipIndex = _currentAnimationSet.ClipSetArray.Length - 1;
 
-        switch (_animationState)
+        if ( finalClipIndex - _clipIndex > 1)
         {
-            case AnimationState.Start:
-                _animationState = AnimationState.End;
-                PlayAnimation(0.0f);
-                break;
-            case AnimationState.Loop:
-                _animationState = AnimationState.End;
-                PlayAnimation(_nextAnimationSet.LerpTime);
-                break;
+            // 現在再生しているアニメと最終アニメとではつながりがないので補完しないことにしてみる
+            _clipIndex = finalClipIndex;
+            PlayAnimation(0.0f);
+        }
+        else
+        {
+            _clipIndex = finalClipIndex;
+            PlayAnimation(_currentAnimationSet.ClipSetArray[_clipIndex].LerpTime);
         }
 
     }
@@ -513,7 +508,7 @@ public partial class CharacterBase
         {
             return -1.0f;
         }
-        return _animationTimeArray[GetCurrentAnimationIndex(0)] / _currentAnimationSet.AnimationClipArray[(int)_animationState].length;
+        return _animationTimeArray[GetCurrentAnimationIndex(0)] / _currentAnimationSet.ClipSetArray[(int)_clipIndex].AnimationClip.length;
     }
 
     /// <summary>

@@ -13,44 +13,59 @@ MonoBehaviour:
   m_Name: AnimationSet10001
   m_EditorClassIdentifier: 
   AnimationSetList:
-  - ConnectionType: 0
-    Label: 1
-    AnimationClipArray:
-    - {fileID: 7400002, guid: a3422ad278cd9a94aa3da8e6bff9deea, type: 3}
-    IsApplyRootMotion: 0
-    IsMoveManual: 0
-    MoveManualSpeed: 0
-    IsLeftIK: 0
-    LeftIKIndex: 0
-    IsRightIK: 0
-    RightIKIndex: 0
-    IsSameAnime: 0
-    LerpTime: 0.1
-  - ConnectionType: 0
-    Label: 3
-    AnimationClipArray:
-    - {fileID: 7400048, guid: 98d8219075968bd43b75fdba6b4463d3, type: 3}
-    IsApplyRootMotion: 0
-    IsMoveManual: 0
-    MoveManualSpeed: 0
-    IsLeftIK: 0
-    LeftIKIndex: 0
-    IsRightIK: 0
-    RightIKIndex: 0
-    IsSameAnime: 0
-    LerpTime: 0.1
-  - ConnectionType: 1
-    Label: 7
-    AnimationClipArray:
-    - {fileID: 7400004, guid: bed9e90d73aca1841ac8b880ad2dc7b4, type: 3}
-    - {fileID: 7400000, guid: bed9e90d73aca1841ac8b880ad2dc7b4, type: 3}
-    - {fileID: 7400002, guid: bed9e90d73aca1841ac8b880ad2dc7b4, type: 3}
-    IsApplyRootMotion: 0
-    IsMoveManual: 0
-    MoveManualSpeed: 0
-    IsLeftIK: 0
-    LeftIKIndex: 0
-    IsRightIK: 0
-    RightIKIndex: 0
-    IsSameAnime: 0
-    LerpTime: 0.1
+  - Label: 1
+    ClipSetArray:
+    - AnimationClip: {fileID: 7400000, guid: a5f3199f52c870242aa57195a12a68ce, type: 3}
+      IsApplyRootMotion: 0
+      IsMoveManual: 0
+      MoveManualSpeed: 0
+      IsLeftIK: 0
+      LeftIKIndex: 0
+      IsRightIK: 0
+      RightIKIndex: 0
+      IsSameAnime: 0
+      LerpTime: 0.1
+  - Label: 3
+    ClipSetArray:
+    - AnimationClip: {fileID: 7400000, guid: 46d5b47e60163f148ada32ff97c7aa32, type: 3}
+      IsApplyRootMotion: 0
+      IsMoveManual: 0
+      MoveManualSpeed: 0
+      IsLeftIK: 0
+      LeftIKIndex: 0
+      IsRightIK: 0
+      RightIKIndex: 0
+      IsSameAnime: 0
+      LerpTime: 0.1
+  - Label: 7
+    ClipSetArray:
+    - AnimationClip: {fileID: 7400004, guid: bed9e90d73aca1841ac8b880ad2dc7b4, type: 3}
+      IsApplyRootMotion: 0
+      IsMoveManual: 0
+      MoveManualSpeed: 0
+      IsLeftIK: 0
+      LeftIKIndex: 0
+      IsRightIK: 0
+      RightIKIndex: 0
+      IsSameAnime: 0
+      LerpTime: 0.1
+    - AnimationClip: {fileID: 7400000, guid: bed9e90d73aca1841ac8b880ad2dc7b4, type: 3}
+      IsApplyRootMotion: 0
+      IsMoveManual: 0
+      MoveManualSpeed: 0
+      IsLeftIK: 0
+      LeftIKIndex: 0
+      IsRightIK: 0
+      RightIKIndex: 0
+      IsSameAnime: 0
+      LerpTime: 0.1
+    - AnimationClip: {fileID: 7400002, guid: bed9e90d73aca1841ac8b880ad2dc7b4, type: 3}
+      IsApplyRootMotion: 0
+      IsMoveManual: 0
+      MoveManualSpeed: 0
+      IsLeftIK: 0
+      LeftIKIndex: 0
+      IsRightIK: 0
+      RightIKIndex: 0
+      IsSameAnime: 0
+      LerpTime: 0
