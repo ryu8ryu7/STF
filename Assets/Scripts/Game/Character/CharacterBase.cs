@@ -24,10 +24,16 @@ public partial class CharacterBase : MonoBehaviour
         PlayAnimation(_animationSetScriptableObject.Get(AnimationSetScriptableObject.AnimationSetNameLabel.Idle01));
     }
 
-    private void Update()
+    public virtual void PreUpdateCharacter()
+    {
+        PreUpdateControl();
+    }
+
+    public virtual void UpdateCharacter()
     {
         UpdateInput();
         UpdateAnimation();
+        UpdateFollowPosition();
         UpdateFollow();
         UpdateMove();
     }

@@ -12,25 +12,24 @@ using UnityEditor;
 [Serializable]
 public class AnimationSet
 {
-    public enum AnimationConnectionType
+    [Serializable]
+    public class ClipSet
     {
-        Single,
-        StartLoopEnd,
+        public AnimationClip AnimationClip = null;
+        public bool IsApplyRootMotion = false;
+        public bool IsMoveManual = false;
+        public float MoveManualSpeed = 0.1f;
+
+        public bool IsLeftIK = false;
+        public int LeftIKIndex = 1;
+        public bool IsRightIK = false;
+        public int RightIKIndex = 1;
+        public bool IsSameAnime = false;
+        public float LerpTime = 0.1f;
     }
 
-    public AnimationConnectionType ConnectionType = AnimationConnectionType.Single;
     public AnimationSetScriptableObject.AnimationSetNameLabel Label = AnimationSetScriptableObject.AnimationSetNameLabel.None;
-    public AnimationClip[] AnimationClipArray = null;
-    public bool IsApplyRootMotion = false;
-    public bool IsMoveManual = false;
-    public float MoveManualSpeed = 0.1f;
-
-    public bool IsLeftIK = false;
-    public int LeftIKIndex = 1;
-    public bool IsRightIK = false;
-    public int RightIKIndex = 1;
-    public bool IsSameAnime = false;
-    public float LerpTime = 0.3f;
+    public ClipSet[] ClipSetArray = null;
 }
 
 [CreateAssetMenu(fileName = "AnimationSet", menuName = "Game/Animation/Create AnimationSet")]

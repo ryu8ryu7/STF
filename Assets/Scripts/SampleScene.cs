@@ -28,6 +28,26 @@ public class SampleScene : MonoBehaviour
                 _playerCharacterList[i].IsControl = false;
             }
         }
+
+        MakeCharacterList(_playerCharacterList[0]);
+    }
+
+    private void MakeCharacterList(CharacterBase leader)
+    {
+        leader.FollowCharacterList.Clear();
+
+        leader.FollowCharacterList.Add(leader);
+
+        for (int i = 0, count = _playerCharacterList.Count; i < count; i++)
+        {
+            if( _playerCharacterList[i] == leader )
+            {
+                continue;
+            }
+
+            _playerCharacterList[i].FollowCharacterList.Clear();
+            leader.FollowCharacterList.Add(_playerCharacterList[i]);
+        }
     }
 
     private void UpdateSystem()
@@ -53,5 +73,15 @@ public class SampleScene : MonoBehaviour
     {
         Utility.Update();
         UpdateSystem();
+
+        for( int i = 0, count = _playerCharacterList.Count; i < count; i++ )
+        {
+            _playerCharacterList[i].PreUpdateCharacter();
+        }
+
+        for (int i = 0, count = _playerCharacterList.Count; i < count; i++)
+        {
+            _playerCharacterList[i].UpdateCharacter();
+        }
     }
 }

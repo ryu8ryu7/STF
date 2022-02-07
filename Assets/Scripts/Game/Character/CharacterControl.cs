@@ -28,8 +28,16 @@ public partial class CharacterBase
     protected bool _isControl = false;
     public bool IsControl { get { return _isControl; } set { _isControl = value; } }
 
-    protected CharacterBase _leadCharacter = null;
-    public CharacterBase LeadCharacter { get { return _leadCharacter; } set { _leadCharacter = value; } }
+    private bool _isFollowing = false;
+
+    private CharacterBase _leader = null;
+
+    private Vector3 _leadPos = Vector3.zero;
+
+    protected List<CharacterBase> _followCharacterList = new List<CharacterBase>();
+    public List<CharacterBase> FollowCharacterList { get { return _followCharacterList; } }
+
+    private float _followTime = 0.0f;
 
     #region TargetMove
 
@@ -44,14 +52,18 @@ public partial class CharacterBase
         _cameraLookDown = cameraLookDown;
     }
 
+    protected virtual void PreUpdateControl()
+    {
+        _direction.x = 0;
+        _direction.y = -0.1f;
+        _direction.z = 0;
+
+    }
+
     protected virtual void UpdateInput()
     {
         if(_isControl == false)
         {
-            _direction.x = 0;
-            _direction.y = -0.1f;
-            _direction.z = 0;
-            PlayAnimation(_animationSetScriptableObject.Get( AnimationSetScriptableObject.AnimationSetNameLabel.Idle01));
             return;
         }
 
@@ -69,10 +81,6 @@ public partial class CharacterBase
 
     protected virtual void Control_LookDownFreeMove()
     {
-        _direction.x = 0;
-        _direction.y = -0.1f;
-        _direction.z = 0;
-
         if (_currentAnimationSet.Label == AnimationSetScriptableObject.AnimationSetNameLabel.HandGun_Cover01)
         {
             //if (Input.GetKeyDown("joystick button 0"))
@@ -115,10 +123,6 @@ public partial class CharacterBase
 
     protected virtual void Control_TargetMove()
     {
-        _direction.x = 0;
-        _direction.y = 0;
-        _direction.z = 0;
-
         //L Stick
         float lsh = Input.GetAxis("L_Stick_H");
         float lsv = Input.GetAxis("L_Stick_V");
@@ -135,6 +139,51 @@ public partial class CharacterBase
         }
     }
 
+    private const float FOLLOW_LENGTH = 5.0f;
+    private const float FOLLOW_GOAL_LENGTH = 2.0f;
+    private const float FOLLOW_END_LENGTH = 0.3f;
+    private const float FOLLOW_TIMER = 3.0f;
+
+    protected virtual void UpdateFollowPosition()
+    {
+        if (_followCharacterList.Count <= 0)
+        {
+            // Ž©•ª‚ªƒŠ[ƒ_[‚Å‚Í‚È‚¢
+            return;
+        }
+
+        CharacterBase leader = _followCharacterList[0];
+
+        for( int i = 1, count = _followCharacterList.Count; i < count; i++ )
+        {
+            CharacterBase follower = _followCharacterList[i];
+            follower.Follow(leader);
+            leader = follower;
+        }
+
+    }
+
+    public bool Follow( CharacterBase leader)
+    {
+        if( _isFollowing == true )
+        {
+            return true;
+        }
+
+        _leader = leader;
+
+        Vector3 sub = _leader.transform.localPosition - transform.localPosition;
+
+        if (sub.magnitude > FOLLOW_LENGTH)
+        {
+            _leadPos = _leader.transform.localPosition - sub.normalized * FOLLOW_GOAL_LENGTH;
+            _isFollowing = true;
+        }
+        
+
+        return _isFollowing;
+    }
+
     protected virtual void UpdateFollow()
     {
         if( _isControl == true )
@@ -142,12 +191,41 @@ public partial class CharacterBase
             return;
         }
 
-        if(_leadCharacter == null)
+        _followTime += Utility.GetGameTime();
+        if (_followTime > FOLLOW_TIMER)
         {
+            _followTime = 0.0f;
+            _isFollowing = false;
+        }
+
+        if ( _isFollowing == false )
+        {
+            PlayAnimation(_animationSetScriptableObject.Get(AnimationSetScriptableObject.AnimationSetNameLabel.Idle01));
             return;
         }
 
+        if( ( _leadPos - transform.localPosition).magnitude < FOLLOW_END_LENGTH )
+        {
+            _followTime = 0.0f;
+            _isFollowing = false;
+            if (Follow(_leader) == false) 
+            {
+                PlayAnimation(_animationSetScriptableObject.Get(AnimationSetScriptableObject.AnimationSetNameLabel.Idle01));
+                return;
+            }
+        }
+
+        Vector3 sub = _leadPos - transform.localPosition;
+        sub.Normalize();
+        _direction.x = sub.x * _moveSpeed;
+        _direction.z = sub.z * _moveSpeed;
+
+        _characterController.transform.localRotation = Quaternion.Euler(0, Utility.GetAngle(_direction), 0);
+        PlayAnimation(_animationSetScriptableObject.Get(AnimationSetScriptableObject.AnimationSetNameLabel.Run01));
+
     }
+
+
 
     protected void UpdateMove()
     {
