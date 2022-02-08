@@ -12,24 +12,34 @@ public class SampleScene : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
+        GameSystem.CreateInstance();
+
         Application.targetFrameRate = 60;
         _cameraLookDown = CameraLookDown.CreateCamera();
 
-        for (int i = 0, count = _playerCharacterList.Count; i < count; i++)
-        {
-            _playerCharacterList[i].SetCameraLookDown(_cameraLookDown);
-            if (i == 0)
-            {
-                _playerCharacterList[i].IsControl = true;
-                _cameraLookDown.SetCharacter(_playerCharacterList[i]);
-            }
-            else
-            {
-                _playerCharacterList[i].IsControl = false;
-            }
-        }
+        CharacterBase character = CharacterLoader.LoadModel();
+        character.Initialize();
+        _playerCharacterList.Add(character);
 
-        MakeCharacterList(_playerCharacterList[0]);
+        character.IsControl = true;
+        character.SetCameraLookDown(_cameraLookDown);
+        _cameraLookDown.SetCharacter(character);
+
+        //for (int i = 0, count = _playerCharacterList.Count; i < count; i++)
+        //{
+        //    _playerCharacterList[i].SetCameraLookDown(_cameraLookDown);
+        //    if (i == 0)
+        //    {
+        //        _playerCharacterList[i].IsControl = true;
+        //        _cameraLookDown.SetCharacter(_playerCharacterList[i]);
+        //    }
+        //    else
+        //    {
+        //        _playerCharacterList[i].IsControl = false;
+        //    }
+        //}
+
+        //MakeCharacterList(_playerCharacterList[0]);
     }
 
     private void MakeCharacterList(CharacterBase leader)
@@ -73,15 +83,5 @@ public class SampleScene : MonoBehaviour
     {
         Utility.Update();
         UpdateSystem();
-
-        for( int i = 0, count = _playerCharacterList.Count; i < count; i++ )
-        {
-            _playerCharacterList[i].PreUpdateCharacter();
-        }
-
-        for (int i = 0, count = _playerCharacterList.Count; i < count; i++)
-        {
-            _playerCharacterList[i].UpdateCharacter();
-        }
     }
 }

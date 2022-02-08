@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CameraLookDown : MonoBehaviour
+public class CameraLookDown : Updater
 {
     private bool _isEnable = false;
     public bool IsEnable { get { return _isEnable; } }
@@ -57,6 +57,8 @@ public class CameraLookDown : MonoBehaviour
         CameraLookDown cameraLookDown = obj.AddComponent<CameraLookDown>();
         cameraLookDown.Camera = camera;
         cameraLookDown.Initialize();
+
+        UpdaterManager.Instance.AddUpdater(cameraLookDown);
         return cameraLookDown;
     }
 
@@ -64,6 +66,7 @@ public class CameraLookDown : MonoBehaviour
     {
         _targetDummy = new GameObject("target");
         _targetDummy.transform.SetParent(transform.parent);
+        _updatePriority = (int)UpdaterManager.Priority.Camera;
     }
 
     public void SetCharacter( CharacterBase character )
@@ -146,9 +149,13 @@ public class CameraLookDown : MonoBehaviour
         }
     }
 
-    private void Update()
+    public override void PreAlterUpdate()
     {
         UpdateControl();
+    }
+
+    public override void AlterUpdate()
+    {
         UpdateCamera();
     }
 

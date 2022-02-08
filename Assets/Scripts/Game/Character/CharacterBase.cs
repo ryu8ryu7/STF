@@ -5,7 +5,7 @@ using UnityEditor;
 #endif
 using UnityEngine;
 
-public partial class CharacterBase : MonoBehaviour
+public partial class CharacterBase : Updater
 {
     [SerializeField]
     private CharacterController _characterController = null;
@@ -13,7 +13,7 @@ public partial class CharacterBase : MonoBehaviour
     private CameraLookDown _cameraLookDown = null;
     public CameraLookDown CameraLookDown { set { _cameraLookDown = value; } }
 
-    private void Start()
+    public void Initialize()
     {
         _characterController = GetComponent<CharacterController>();
 
@@ -22,20 +22,31 @@ public partial class CharacterBase : MonoBehaviour
 
         LoadAnimation( LoadAnimationSetData(10001) );
         PlayAnimation(_animationSetScriptableObject.Get(AnimationSetScriptableObject.AnimationSetNameLabel.Idle01));
+
+        _updatePriority = (int)UpdaterManager.Priority.Character;
     }
 
-    public virtual void PreUpdateCharacter()
+    public override void PreAlterUpdate()
     {
+        base.PreAlterUpdate();
+
         PreUpdateControl();
     }
 
-    public virtual void UpdateCharacter()
+    public override void AlterUpdate()
     {
+        base.AlterUpdate();
+
         UpdateInput();
         UpdateAnimation();
         UpdateFollowPosition();
         UpdateFollow();
         UpdateMove();
+    }
+
+    private void OnDestroy()
+    {
+        UpdaterManager.Instance.RemoveUpdater(this);
     }
 
 #if UNITY_EDITOR
