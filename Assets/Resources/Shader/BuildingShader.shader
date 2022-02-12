@@ -31,7 +31,7 @@ Shader "Unlit/BuildingShader"
                 float4 pos : SV_POSITION;
                 float2 uv : TEXCOORD0;
                 SHADOW_COORDS(1) // シャドウのデータを TEXCOORD1 に格納
-                float3 worldNormal : TEXCOORD2;
+                float3 normal : TEXCOORD2;
                 half3 halfDir : TEXCOORD3;
 
             };
@@ -43,7 +43,7 @@ Shader "Unlit/BuildingShader"
             {
                 v2f o;
                 o.pos = UnityObjectToClipPos(v.vertex);
-                o.worldNormal = UnityObjectToWorldNormal(v.normal);
+                o.normal = UnityObjectToWorldNormal(v.normal);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
 
                 // ハーフベクトルを求める
@@ -58,23 +58,41 @@ Shader "Unlit/BuildingShader"
 
             fixed4 frag(v2f i ) : SV_Target
             {
-                float3 lightDir = _WorldSpaceLightPos0.xyz;
-                float3 normal = normalize(i.worldNormal);
-                float NL = dot(normal, lightDir);
+                // テクスチャカラー
+                fixed4 col = tex2D(_MainTex, i.uv);
 
-                float3 baseColor = tex2D(_MainTex, i.uv);
-                
-                float3 lightColor = _LightColor0;
-                lightColor += max(0, dot(i.worldNormal, i.halfDir));
+                // ディフューズライト
+                //col.rgb *= max(0.2, dot(i.normal, _WorldSpaceLightPos0.xyz));
+                //col *= _LightColor0;
 
-                fixed4 col = fixed4(baseColor * lightColor * max(NL, 0.2), 0);
+                // ハーフランバート
+                col.rgb *= dot(i.normal, _WorldSpaceLightPos0.xyz)* 0.5 + 0.5;
+                //col *= _LightColor0;
 
+                // スペキュラーライト
+                //col.rgb += col.rgb * max(0.6, dot(i.normal, i.halfDir));
 
                 // シャドウの減衰を計算します (1.0 = 完全に照射される, 0.0 = 完全に影になる)
-                fixed shadow = SHADOW_ATTENUATION(i);
+                col.rgb *= max( 0.6, SHADOW_ATTENUATION(i));
+
+
+
+
+                //float3 lightDir = _WorldSpaceLightPos0.xyz;
+                //float3 normal = normalize(i.normal);
+                //float NL = dot(normal, lightDir);
+
+                //
+                //float3 lightColor = _LightColor0;
+                //lightColor += max(0, dot(i.normal, i.halfDir));
+
+                //fixed4 col = fixed4(baseColor * lightColor * max(NL, 0), 0);
+
+
+                
 
                 // スペキュラの強さを求める
-                col.rgb = col.rgb * max(0.0, dot(i.worldNormal, i.halfDir)) * shadow;
+                //col.rgb = col.rgb * max(0.0, dot(i.worldNormal, i.halfDir)) * shadow;
 
                 return col;
 

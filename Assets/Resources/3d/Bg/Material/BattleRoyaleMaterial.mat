@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: BuildingMaterial
+  m_Name: BattleRoyaleMaterial
   m_Shader: {fileID: 4800000, guid: 41be85fd8e3b24f45a4d3b40e75aefc6, type: 3}
   m_ShaderKeywords: _NORMALMAP
   m_LightmapFlags: 4

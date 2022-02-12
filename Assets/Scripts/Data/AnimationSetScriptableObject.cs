@@ -29,7 +29,9 @@ public class AnimationSet
     }
 
     public AnimationSetScriptableObject.AnimationSetNameLabel Label = AnimationSetScriptableObject.AnimationSetNameLabel.None;
+    public bool IsLoopMotion = false;
     public ClipSet[] ClipSetArray = null;
+
 }
 
 [CreateAssetMenu(fileName = "AnimationSet", menuName = "Game/Animation/Create AnimationSet")]
